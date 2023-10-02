@@ -4,175 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Web App</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-      /* styles.css */
-        /* CSS for the side menu */
-        .side-menu {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 60px;
-        }
-
-        .side-menu a {
-            padding: 15px 25px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            transition: 0.2s;
-        }
-
-        .side-menu a:hover {
-            background-color: #444;
-        }
-
-        #menu-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 30px;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        /* CSS for the content area */
-        #content {
-            transition: margin-left .3s;
-            padding: 16px;
-        }
-
-        /* Style for contact list */
-        .contact-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .contact-list li {
-            margin-bottom: 10px;
-        }
-
-        /* Style for hiding the side menu */
-        .menu-closed #content {
-            margin-left: 0;
-        }
-
-
-
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    /* overflow: hidden; */
-}
-
-.chat-container {
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    align-items:center;
-    justify-content:space-between;
-    height: 100vh;
-    width: 100%;
-    overflow: hidden;
-}
-
-.video-container {
-    display: flex;
-    justify-content:center;
-    align-items: center;
-    height: 100%;
-    width: 70%;
-    /* margin-bottom: 20px; */
-}
-
-.video {
-    width: 100%;
-    height: 80vh;
-    border: 1px solid #ccc;
-}
-
-.chat {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-    background-color: #f9f9f9;
-    padding: 20px;
-    height: 80vh;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.chat-messages {
-    height: 80%;
-    overflow-y: scroll;
-    margin-bottom: 10px;
-}
-
-.message {
-    margin-bottom: 10px;
-}
-
-.message-sender {
-    font-weight: bold;
-}
-
-#message-input {
-    width: 90%;
-    padding: 10px;
-    height: 50px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: none;
-}
-
-#send-button {
-    display: block;
-    margin-top: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-#send-button:hover {
-    background-color: #0056b3;
-}
-
-    </style>
+    <link rel="stylesheet" href="css/chat.css">
 </head>
 <body>
     <div class="menu-closed">
 
         <!-- Side Menu -->
         <div id="side-menu" class="side-menu">
-            <a href="#">Contact 1</a>
-            <a href="#">Contact 2</a>
-            <a href="#">Contact 3</a>
-            <a href="#">Contact 4</a>
-            <!-- Add more contact links as needed -->
         </div>
     
         <!-- Content Area -->
         <div id="content">
             <span id="menu-button" onclick="toggleMenu()">&#9776;</span>
-            <!-- <h1>Contact List</h1>
-            <ul class="contact-list">
-                <li>Contact 1 Information</li>
-                <li>Contact 2 Information</li>
-                <li>Contact 3 Information</li>
-                <li>Contact 4 Information</li>
-                Add more contact information as needed 
-            </ul> -->
         </div>
     
         
@@ -193,14 +36,14 @@ body {
         <div class="chat">
             <div class="chat-messages">
                 <!-- Chat messages will be displayed here -->
-                <div class="message">
+                <div id="message" class="message">
                     <!-- <div class="message-sender">Sender</div>
                     <div class="message-text">Hello!</div> -->
                 </div>
                 <!-- Add more message divs as needed -->
             </div>
             <div class="message-input">
-                <textarea id="message-input" placeholder="Type your message..."></textarea>
+                <textarea id="message-input" name="message" placeholder="Type your message..."></textarea>
                 <button id="send-button">Send</button>
             </div>
         </div>
@@ -208,6 +51,18 @@ body {
 </div>
 </body>
 <script>
+    var users = <%- JSON.stringify(users) %>;
+    var selectedContact = users[0].username;
+    var contacts = document.getElementById("side-menu");
+    users.forEach((user)=>{
+        let contact = document.createElement('contact');
+        contact.innerHTML = user.name;
+        contact.addEventListener("click",()=>{
+            selectedContact = user.username;
+        })
+        contact.setAttribute("username",user.username);
+        contacts.appendChild(contact);
+    })
     function toggleMenu() {
         var sideMenu = document.getElementById("side-menu");
         var content = document.getElementById("content");
@@ -221,6 +76,52 @@ body {
             sideMenu.style.width = "250px";
             content.style.marginLeft = "250px";
             body.classList.add("menu-open");
+        }
+    }
+</script>
+<script>
+
+    var inputArea = document.getElementById("message-input");
+    var sendButton = document.getElementById("send-button");
+    sendButton.addEventListener("click",sendMessage);
+    
+    ws = new WebSocket('ws://localhost:3000/chat');
+    ws.onerror = (error)=>console.error;
+    ws.onopen = open;
+    ws.onmessage = gotMessage;
+
+    function open(){
+        console.log("Connection Established!!");
+    }
+
+    function gotMessage(dat){
+        console.log(dat.data);
+        const parsedData = JSON.parse(dat.data.toString("utf8"));
+        //if sent data is a text message from the user then display the message.
+        if(parsedData.type=='text'){
+            var currentMessage = document.getElementById("message");
+            var messageSender = document.createElement('div');
+            messageSender.class = "message-sender";
+            messageSender.innerHTML = parsedData.from;
+            var message = document.createElement("div");
+            message.class = "message";
+            message.innerHTML = parsedData.message; 
+            currentMessage.appendChild(messageSender);
+            currentMessage.appendChild(message);
+        }
+    }
+    function sendMessage(){
+        const data = {
+            type:"text",
+            message: inputArea.value,
+            from:selectedContact
+        }
+        try{
+        ws.send(JSON.stringify(data));
+        inputArea.value = "";
+        }
+        catch{
+            console.log("Couldn't send message!!");
         }
     }
 </script>

@@ -22,17 +22,17 @@ module.exports =  async(httpServer) =>{
     // const reqParam = queryString.parse(params);
     console.log("New ws connection!!");
     console.log(params);
-    const name = params.split('=')[1];
+    const name = params?.split('=')[1];
     clients[name] = ws;
     // console.log(name);
     ws.on('message',(message)=>{
-      const parsedMessage = JSON.parse(message);
+      const parsedMessage = JSON.parse(message.toString());
       console.log(parsedMessage);
       // console.log(clients);
-      Object.keys(clients).forEach((name)=>{
-
-        if(parsedMessage.to==name)
-          clients[name].send(parsedMessage.message);
+      wss.clients.forEach((name)=>{
+        console.log(parsedMessage.message);
+        console.log(JSON.parse(message.toString()));
+        name.send(JSON.stringify(parsedMessage));
       })
     })
   })

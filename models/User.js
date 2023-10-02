@@ -7,6 +7,15 @@ const userSchema = new Schema({
     type: String,
     required:true
   },
+  name:{
+    first:{
+      type:String,
+      required:true
+    },
+    last:{
+      type:String
+    },
+  },
   username:{
     type:String,
     required:true
