@@ -6,14 +6,14 @@ const app = express();
 const User = require('./models/User.js');
 const chatServer = require('./chatServer.js');
 const homeRoutes = require("./routes/homeRoutes.js")
-
+app.set("view engine", "ejs");
+app.set("views","views");
 app.use(express.urlencoded({extended:false}));
 app.use(homeRoutes);
 // app.use(chatServer);
 app.get('/chat',(req,res,next)=>{
   res.sendFile(__dirname+'/views/chat.html');
   console.log("request came!!");
-  
 })
 
 

@@ -2,7 +2,7 @@ const User = require("../models/User");
 
 exports.getLogin = (req,res,next) =>{
 
-  res.sendFile(process.cwd() + "/views/form.html");
+  res.render('form');
 }
 
 exports.postSignup = async (req,res,next)=>{

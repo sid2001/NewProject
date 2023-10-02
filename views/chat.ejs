@@ -7,6 +7,64 @@
     <link rel="stylesheet" href="styles.css">
     <style>
       /* styles.css */
+        /* CSS for the side menu */
+        .side-menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+        }
+
+        .side-menu a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .side-menu a:hover {
+            background-color: #444;
+        }
+
+        #menu-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* CSS for the content area */
+        #content {
+            transition: margin-left .3s;
+            padding: 16px;
+        }
+
+        /* Style for contact list */
+        .contact-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .contact-list li {
+            margin-bottom: 10px;
+        }
+
+        /* Style for hiding the side menu */
+        .menu-closed #content {
+            margin-left: 0;
+        }
+
+
 
 body {
     font-family: Arial, sans-serif;
@@ -93,6 +151,32 @@ body {
     </style>
 </head>
 <body>
+    <div class="menu-closed">
+
+        <!-- Side Menu -->
+        <div id="side-menu" class="side-menu">
+            <a href="#">Contact 1</a>
+            <a href="#">Contact 2</a>
+            <a href="#">Contact 3</a>
+            <a href="#">Contact 4</a>
+            <!-- Add more contact links as needed -->
+        </div>
+    
+        <!-- Content Area -->
+        <div id="content">
+            <span id="menu-button" onclick="toggleMenu()">&#9776;</span>
+            <!-- <h1>Contact List</h1>
+            <ul class="contact-list">
+                <li>Contact 1 Information</li>
+                <li>Contact 2 Information</li>
+                <li>Contact 3 Information</li>
+                <li>Contact 4 Information</li>
+                Add more contact information as needed 
+            </ul> -->
+        </div>
+    
+        
+    </div>
     <div class="chat-container">
         <div class="video-container">
             <!-- User's video -->
@@ -121,5 +205,23 @@ body {
             </div>
         </div>
     </div>
+</div>
 </body>
+<script>
+    function toggleMenu() {
+        var sideMenu = document.getElementById("side-menu");
+        var content = document.getElementById("content");
+        var body = document.body;
+
+        if (sideMenu.style.width === "250px") {
+            sideMenu.style.width = "0";
+            content.style.marginLeft = "0";
+            body.classList.remove("menu-open");
+        } else {
+            sideMenu.style.width = "250px";
+            content.style.marginLeft = "250px";
+            body.classList.add("menu-open");
+        }
+    }
+</script>
 </html>
