@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    video {
+      width: 400px;
+      height: 500px;
+
+    }
+  </style>
+</head>
+<body>
+
+  <div><video type="video"></video>
+    <button id="start">Start Video</button>
+    <button id="pause">Pause</button>
+    <button id="stop">Stop</button>
+  </div>
+</body>
+<script>
+//   navigator.mediaDevices.getUserMedia({video:true
+// },function(localMediaStream){
+//     var video = document.querySelector('video');
+    
+//     video.src = window.URL.createObjectURL(localMediaStream);
+//     video.autoplay = true;
+//     video.onloadedmetadata = function(e) {
+//     };
+// },(e)=>{console.log(e);});
+var stbtn = document.querySelector('button#start');
+stbtn.addEventListener("click",startVideo);
+
+var sbtn = document.querySelector('button#pause');
+var stopbtn = document.querySelector('button#stop');
+sbtn.addEventListener("click",pauseVideo);
+stopbtn.addEventListener("click",stopVideo);
+function pauseVideo(){
+  var video = document.querySelector('video');
+  video.autoplay = false;
+  video.srcObject.getTracks()[0].stop();
+}
+function stopVideo(){
+  var video = document.querySelector('video');
+  for(var i of video.srcObject.getTracks()){
+    i.stop();
+  }
+  video.srcObject = null;
+  // video.srcObject.getTracks()[0].stop();
+}
+function startVideo(){  var errorCallback = function(e) {
+    console.log('Reeeejected!', e);
+    };
+
+    // Not showing vendor prefixes.
+    // navigator.mediaDevices.getUserMedia({video: true, audio: true}, function(localMediaStream) {
+    var video = document.querySelector('video');
+    if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject  = stream;
+      video.autoplay = true;
+    })
+    .catch(function (error) {
+      console.log("Something went wrong!");
+    });
+}}
+</script>
+</html>
