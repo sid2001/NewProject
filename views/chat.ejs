@@ -6,7 +6,7 @@
     <title>Chat Web App</title>
     <link rel="stylesheet" href="css/chat.css">
 </head>
-<body>
+<body onload = "connectChat()">
     <div class="menu-closed">
 
         <!-- Side Menu -->
@@ -84,12 +84,13 @@
     var inputArea = document.getElementById("message-input");
     var sendButton = document.getElementById("send-button");
     sendButton.addEventListener("click",sendMessage);
-    
-    ws = new WebSocket('ws://localhost:3000/chat');
+    var ws;
+    async function connectChat(){
+    ws = await new WebSocket('ws://localhost:3000/chat');
     ws.onerror = (error)=>console.error;
     ws.onopen = open;
     ws.onmessage = gotMessage;
-
+    }
     function open(){
         console.log("Connection Established!!");
     }
@@ -110,13 +111,14 @@
             currentMessage.appendChild(message);
         }
     }
-    function sendMessage(){
+    async function sendMessage(){
         const data = {
             type:"text",
             message: inputArea.value,
             from:selectedContact
         }
         try{
+        if(ws.readyState===3) await connectChat();
         ws.send(JSON.stringify(data));
         inputArea.value = "";
         }
