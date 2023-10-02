@@ -51,80 +51,10 @@
 </div>
 </body>
 <script>
-    var users = <%- JSON.stringify(users) %>;
-    var selectedContact = users[0].username;
-    var contacts = document.getElementById("side-menu");
-    users.forEach((user)=>{
-        let contact = document.createElement('contact');
-        contact.innerHTML = user.name;
-        contact.addEventListener("click",()=>{
-            selectedContact = user.username;
-        })
-        contact.setAttribute("username",user.username);
-        contacts.appendChild(contact);
-    })
-    function toggleMenu() {
-        var sideMenu = document.getElementById("side-menu");
-        var content = document.getElementById("content");
-        var body = document.body;
-
-        if (sideMenu.style.width === "250px") {
-            sideMenu.style.width = "0";
-            content.style.marginLeft = "0";
-            body.classList.remove("menu-open");
-        } else {
-            sideMenu.style.width = "250px";
-            content.style.marginLeft = "250px";
-            body.classList.add("menu-open");
-        }
-    }
+const users = <%- JSON.stringify(users) %>;
 </script>
-<script>
-
-    var inputArea = document.getElementById("message-input");
-    var sendButton = document.getElementById("send-button");
-    sendButton.addEventListener("click",sendMessage);
-    var ws;
-    async function connectChat(){
-    ws = await new WebSocket('ws://localhost:3000/chat');
-    ws.onerror = (error)=>console.error;
-    ws.onopen = open;
-    ws.onmessage = gotMessage;
-    }
-    function open(){
-        console.log("Connection Established!!");
-    }
-
-    function gotMessage(dat){
-        console.log(dat.data);
-        const parsedData = JSON.parse(dat.data.toString("utf8"));
-        //if sent data is a text message from the user then display the message.
-        if(parsedData.type=='text'){
-            var currentMessage = document.getElementById("message");
-            var messageSender = document.createElement('div');
-            messageSender.class = "message-sender";
-            messageSender.innerHTML = parsedData.from;
-            var message = document.createElement("div");
-            message.class = "message";
-            message.innerHTML = parsedData.message; 
-            currentMessage.appendChild(messageSender);
-            currentMessage.appendChild(message);
-        }
-    }
-    async function sendMessage(){
-        const data = {
-            type:"text",
-            message: inputArea.value,
-            from:selectedContact
-        }
-        try{
-        if(ws.readyState===3) await connectChat();
-        ws.send(JSON.stringify(data));
-        inputArea.value = "";
-        }
-        catch{
-            console.log("Couldn't send message!!");
-        }
-    }
+<script src ="scripts/chat.js">
+    
 </script>
+<script src = "scripts/webSocket.js"></script>
 </html>
