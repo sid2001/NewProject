@@ -1,8 +1,9 @@
 const express = require('express');
-const {MongoClient} = require('mongodb');
+const dotenv = require('dotenv').config();
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 const mongoose = require('mongoose');
 const path = require('path');
-// const db = new MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000 ")
 const app = express();
 const User = require('./models/User.js');
 const chatServer = require('./chatServer.js');
@@ -13,10 +14,40 @@ app.set("views","views");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({extended:false}));
+
+
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: new MongoDBStore({
+      uri: process.env.MONGODB_URI,
+      collection: "sessions",
+    }),
+  })
+);
+
+app.use((req,res,next)=>{
+  if(req.session.user){
+    User.findById(req.session.user._id)
+    .then((user)=>{
+      console.log(user);
+      req.user = user;
+      next();
+    })
+    .catch(err=>{
+      console.log(`Error while finding session user id!! ${err}`)
+    })
+  }
+  else{
+    next();
+  }
+})
+
 app.use(homeRoutes);
 
-
-mongoose.connect("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000").then(()=>{
+mongoose.connect(process.env.MONGODB_URI).then(()=>{
   console.log(`Connected to db`)
   const httpServer = app.listen({host:"127.0.0.1",port:3000});
   chatServer(httpServer);
