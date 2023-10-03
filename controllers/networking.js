@@ -15,7 +15,7 @@ exports.getChat = async function(req,res,next){
     return getUser;
   }).then((data)=>{
     console.log(data);
-    res.render("chat",{users:data});
+    res.render("chat",{users:data,username:req.user?.username});
   })
   
 } 
