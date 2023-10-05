@@ -1,0 +1,21 @@
+MCU and SFU seems correct way to transfer streams
+MCU is basically mixing the received the streams and relaying to every peer 
+SFU creates separate channels to relay different streams to each peer
+
+-------> What goes on while negotiation process? <--------
+
+Well SFU seems better option to avoid traffic issues due to one peer acting abnormally since the channels are
+different so there will be no problem due to one stream even taking action will become much convenient peer wise.
+
+SFU may cause unsynchronised video from peers.<<<<<< need to look into this later
+
+>>>>>Connect to a SFU server make n connections where n + 1 is number of total peers make on connection as the main 
+>>>>>connection to send media data and close all other local media tracks for rest of the connections
+>>>>>Those media channel will act only as data sender channel while our main connection will send data(You can also
+>>>>>turn off remote track for the main connection)
+
+How to make a SFU
+
+
+OOOOOOO>Why TURN works: because it sits on the public IP
+

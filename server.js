@@ -5,10 +5,11 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
+const https = require('https');
 const User = require('./models/User.js');
 const chatServer = require('./chatServer.js');
 const homeRoutes = require("./routes/homeRoutes.js")
-
+const fs = require('fs');
 app.set("view engine", "ejs");
 app.set("views","views");
 
@@ -49,7 +50,7 @@ app.use(homeRoutes);
 
 mongoose.connect(process.env.MONGODB_URI).then(()=>{
   console.log(`Connected to db`)
-  const httpServer = app.listen({host:"127.0.0.1",port:3000});
+  const httpServer = https.createServer({key:fs.readFileSync("key.pem"),cert:fs.readFileSync("cert.pem")},app).listen({host:"127.0.0.1",port:3000});
   chatServer(httpServer);
   // console.log(app.locals.httpServer.);
   console.log("Server listening at port 3000");

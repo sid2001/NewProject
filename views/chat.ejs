@@ -25,12 +25,8 @@
             <!-- User's video -->
             <div class ="video" >
                 <!-- Replace with actual video element or iframe -->
-                <video id="local_video" autoplay controls></video>
-            </div>
-            <!-- Recipient's video -->
-            <div class ="video" >
-                <!-- Replace with actual video element or iframe -->
-                <video id="remote_video" autoplay controls></video>
+                <video id="remote_video" autoplay controls playsinline></video>
+                <video id="local_video" autoplay controls playsinline></video>
             </div>
         </div>
         <div class="chat">
@@ -44,9 +40,13 @@
             </div>
             <div class="message-input">
                 <textarea id="message-input" name="message" placeholder="Type your message..."></textarea>
-                <button id="send-button">Send</button>
+                <div id="actionButton">
+                    <button id="video-call">Video Call</button>
+                    <button id="send-button">Send</button>
+                </div>
+                
             </div>
-            <button id="video-call">Video Call</button>
+            
         </div>
     </div>
 </div>
@@ -60,16 +60,30 @@ vbtn.addEventListener("click",videoCall);
 
 
 
-var selectedContact = users[0].username;
+var selectedContact="";
 var contacts = document.getElementById("side-menu");
 users.forEach((user)=>{
+    if(user.username!==username){
   let contact = document.createElement('contact');
   contact.innerHTML = user.name;
+//   contact.setAttribute("style");
+  contact.setAttribute("style","background:white")
   contact.addEventListener("click",()=>{
       selectedContact = user.username;
+    //   if(selectedContact!==""){
+    //   document.getElementById("selectedContact").style.background="white";
+    //   document.getElementById("selectedContact").id = "";
+    // }
+    //   if(selectedContact!="null"){
+        // ;
+    //   }
+    //   contact.setAttribute("id","selectedContact");
+    //   document.getElementById("selectedContact").style.background = "rgba(56, 77, 139, 0.684)";
+      toggleMenu();
   })
   contact.setAttribute("username",user.username);
   contacts.appendChild(contact);
+}
 })
 function toggleMenu() {
   var sideMenu = document.getElementById("side-menu");
@@ -95,7 +109,7 @@ const configuration = {
     }]
 }
 
-let pc = new RTCPeerConnection(configuration);
+let pc = new RTCPeerConnection();
 
     navigator.mediaDevices.getUserMedia({
         audio:true,
@@ -114,6 +128,10 @@ let pc = new RTCPeerConnection(configuration);
 
 async function videoCall() {
 
+    if(selectedContact===""){
+        alert("Select a contact!!");
+        return;
+    }
     await pc.createOffer().then(async (offer)=>{
         await pc.setLocalDescription(offer);
         await ws.send(JSON.stringify({
@@ -149,7 +167,7 @@ var sendButton = document.getElementById("send-button");
 sendButton.addEventListener("click",sendMessage);
 var ws;
 async function connectChat(){
-  ws = new WebSocket(`ws://localhost:3000/chat?username=${username}`);
+  ws = new WebSocket(`wss://c2a7-182-66-218-126.ngrok-free.app/chat?username=${username}`);
   ws.onerror = (error)=>console.error;
   ws.onopen = open;
   ws.onmessage = gotMessage;
@@ -242,6 +260,10 @@ async function gotMessage(dat){
 
 
 async function sendMessage(){
+    if(selectedContact===""){
+        alert("Select a contact!!");
+        return;
+    }
   const data = {
     type:"text",
     message: inputArea.value,

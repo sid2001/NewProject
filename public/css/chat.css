@@ -1,143 +1,337 @@
-.side-menu {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: #333;
-  overflow-x: hidden;
-  transition: 0.3s;
-  padding-top: 60px;
-}
-#side-menu {
-    background-color: rgb(49, 82, 147);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-#side-menu contact {
-    text-align: left;
-    text-indent: 5px;
-    margin: 2px 2px 0px 0px;
-    width: 90%;
-    background-color: #fefefe;
-    padding: 10px 15px;
-    font-family: sans-serif;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 20px;
-    color: black;
-    display: block;
-    transition: 0.2s;
-    cursor: pointer;
-}
-.side-menu a:hover {
-    background-color: #444;
-}
-#menu-button {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 2;
-}
-/* CSS for the content area */
-#content {
-    transition: margin-left .3s;
-    padding: 16px;
-}
-/* Style for contact list */
-.contact-list {
-list-style: none;
-padding: 0;
-}
-.contact-list li {
-  margin-bottom: 10px;
-}
-       /* Style for hiding the side menu */
-.menu-closed #content {
-  margin-left: 0;
-}
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
+
+
+@media (max-width:1600px){
+    .side-menu {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      background-color: #333;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
+    }
+    #side-menu {
+        background-color: rgb(49, 82, 147);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #side-menu contact {
+        text-align: left;
+        text-indent: 5px;
+        margin: 2px 2px 0px 0px;
+        width: 90%;
+        background-color: #fefefe;
+        padding: 10px 15px;
+        font-family: sans-serif;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 20px;
+        color: black;
+        display: block;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+    .side-menu a:hover {
+        background-color: #444;
+    }
+    #menu-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        font-size: 30px;
+        cursor: pointer;
+        z-index: 2;
+    }
+    /* CSS for the content area */
+    #content {
+        transition: margin-left .3s;
+        /* padding: 16px; */
+    }
+    /* Style for contact list */
+    .contact-list {
+    list-style: none;
     padding: 0;
-    overflow: hidden;
-}
+    }
+    .contact-list li {
+      margin-bottom: 10px;
+    }
+           /* Style for hiding the side menu */
+    .menu-closed #content {
+      margin-left: 0;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .chat-container {
+        margin: 0;
+        display: flex;
+        flex-direction: row;
+        align-items:center;
+        justify-content:space-between;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .video-container {
+        display: flex;
+        justify-content:center;
+        align-items: center;
+        height: 100%;
+        width: 70%;
+        /* margin-bottom: 20px; */
+    }
+    
+    .video {
+        width: 100%;
+        height: 80vh;
+        border: 1px solid #ccc;
+    }
+    
+    .chat {
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        background-color: #f9f9f9;
+        padding: 20px;
+        height: 80vh;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-messages {
+        height: 80%;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+    }
+    
+    .message {
+        margin-bottom: 10px;
+    }
+    
+    .message-sender {
+        font-weight: bold;
+    }
+    
+    #message-input {
+        width: 90%;
+        padding: 10px;
+        height: 50px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+    
+    #send-button {
+        display: block;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    
+    #send-button:hover {
+        background-color: #0056b3;
+    }
+    }
 
-.chat-container {
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    align-items:center;
-    justify-content:space-between;
-    height: 100vh;
-    width: 100%;
-    overflow: hidden;
-}
+@media (max-width:500px){
+    .side-menu {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      /* margin: 0; */
+      background-color: #333;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
+    }
+    #side-menu {
+        background-color: rgb(49, 82, 147);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #side-menu contact {
+        text-align: left;
+        text-indent: 5px;
+        margin:0px;
+        width: 90%;
+        background-color: #fefefe;
+        /* padding: 10px 15px; */
+        font-family: sans-serif;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 20px;
+        color: black;
+        display: block;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+    .side-menu a:hover {
+        background-color: #444;
+    }
+    #menu-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        font-size: 30px;
+        cursor: pointer;
+        z-index: 2;
+    }
+    /* CSS for the content area */
+    #content {
+        transition: margin-left .3s;
 
-.video-container {
-    display: flex;
-    justify-content:center;
-    align-items: center;
-    height: 100%;
-    width: 70%;
-    /* margin-bottom: 20px; */
-}
+    }
+    /* Style for contact list */
+    .contact-list {
+    list-style: none;
+    padding: 0;
+    }
+    
+           /* Style for hiding the side menu */
+    .menu-closed #content {
+      margin-left: 0;
+    }
+    /* #selectedContact {
+        background:rgba(56, 77, 139, 0.684)
+        } */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        /* overflow: hidden; */
+    }
+    
+    .chat-container {
+        margin: 0;
+        padding:0;
+        display: flex;
+        
+        flex-direction: column;
+        align-items:center;
+        /* justify-content:space-between; */
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .video-container {
+        display: flex;
+        flex-direction: column;
+        justify-content:center;
+        object-fit: contain;
+        width: 100%;
+        height: 50vh;
+        /* align-items: center; */
+        /* height: 100%;
+        width: 100%; */
+        /* margin-bottom: 20px; */
+    }
+    
+    .video {
+        /* object-fit: cover; */
+        /* width: ; */
+        width: 100%;
+        height: 100%;
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        /* height: 70%; */
+        /* height: 1vh; */
+        /* position:absolute; */
+        border: 1px solid #ccc;
+    }
+    #remote_video {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        border-radius: 2px;
+        /* height: ; */
+        /* width:  */
 
-.video {
-    width: 100%;
-    height: 80vh;
-    border: 1px solid #ccc;
-}
-
-.chat {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-    background-color: #f9f9f9;
-    padding: 20px;
-    height: 80vh;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.chat-messages {
-    height: 80%;
-    overflow-y: scroll;
-    margin-bottom: 10px;
-}
-
-.message {
-    margin-bottom: 10px;
-}
-
-.message-sender {
-    font-weight: bold;
-}
-
-#message-input {
-    width: 90%;
-    padding: 10px;
-    height: 50px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: none;
-}
-
-#send-button {
-    display: block;
-    margin-top: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-#send-button:hover {
-    background-color: #0056b3;
-}
+    }
+    #local_video {
+        position: absolute;
+        z-index: 1;
+        height:140px;
+        width: 180px;
+        margin-top: 0;
+        margin-left: 54%;
+        border-radius: 10%;
+    }
+    .chat {
+        width: 99%;
+        display: flex;
+        flex-direction: column;
+        background-color: #f9f9f9;
+        padding: 20px;
+        height: 50vh;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .message-input {
+        height: 50%;
+    }
+    .chat-messages {
+        height: 60%;
+        overflow-y: scroll;
+        margin-bottom: 10px;
+    }
+    
+    .message {
+        margin-bottom:10px ;
+    }
+    
+    .message-sender {
+        font-weight: bold;
+    }
+    
+    #message-input {
+        width: 93%;
+        height: 9%;
+        /* height: 50%; */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+    
+    #send-button,#video-call {
+        display: block;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    #send-button {
+        margin-left: 10px;
+    }
+    #actionButton {
+        display: flex;
+        flex-direction: row;
+        
+    }
+    
+    #send-button, #video-call:hover {
+        background-color: #0056b3;
+    }
+    }
