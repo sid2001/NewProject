@@ -8,5 +8,5 @@ router.get('/login',authController.getLogin);
 router.post('/login',authController.postLogin);
 router.post('/signup',authController.postSignup);
 router.get('/chat',isAuth,networkingController.getChat);
-
+router.post('/logout',authController.postLogout);
 module.exports = router;

@@ -1,11 +1,10 @@
-
-
 @media (max-width:1600px){
+    
     .side-menu {
       height: 100%;
       width: 0;
-      position: fixed;
       z-index: 1;
+      position:fixed;
       top: 0;
       left: 0;
       background-color: #333;
@@ -40,25 +39,27 @@
     }
     #menu-button {
         position: fixed;
-        top: 20px;
+        /* top: 20px; */
         left: 20px;
         font-size: 30px;
         cursor: pointer;
-        z-index: 2;
+        z-index: 4;
+        transition: margin-left .3s;
     }
+    .menu-closed{
+        position:absolute;
+    }
+    
     /* CSS for the content area */
     #content {
         transition: margin-left .3s;
+
         /* padding: 16px; */
     }
+    #content:hover {
+        cursor: pointer;
+    }
     /* Style for contact list */
-    .contact-list {
-    list-style: none;
-    padding: 0;
-    }
-    .contact-list li {
-      margin-bottom: 10px;
-    }
            /* Style for hiding the side menu */
     .menu-closed #content {
       margin-left: 0;
@@ -67,9 +68,37 @@
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow-x:hidden;
     }
-    
+    .header{
+        position:fixed;
+        display: flex;
+        flex-direction: row-reverse;
+        
+        justify-content: right;
+        height: 50px;
+        z-index:1 ;
+        width: 100%;
+        border-bottom: #0056b3;
+        border-width: 10px;
+        border-color: red;
+    }
+    #log_out {
+        margin:15px 5px 0px 0px;
+    }
+    #home {
+        margin:15px 20px 0px 0px;
+    }
+    #log_out>button {
+        background-color: inherit;
+        border-width: 0px;
+        font-size: inherit;
+        cursor: pointer;
+    }
+    #home>a{
+        text-decoration: none;
+        color: black;
+    }
     .chat-container {
         margin: 0;
         display: flex;
@@ -95,7 +124,14 @@
         height: 80vh;
         border: 1px solid #ccc;
     }
-    
+    #local_video {
+        width: 400px;
+        height: 300px;
+    }
+    #remote_video {
+        width: 400px;
+        height: 300px;
+    }
     .chat {
         width: 30%;
         display: flex;

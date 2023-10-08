@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const mongoose = require('mongoose');
 exports.getLogin = (req,res,next) =>{
   res.render('form');
 }
@@ -16,8 +17,10 @@ exports.postLogin = async (req,res,next)=>{
         console.log("Existing User!!");
         req.session.isLoggedIn = true;
         req.session.user = user;
-        return req.session.save((err)=>{
-          console.log(err);
+        console.log(req.session);
+        return req.session.save((data)=>{
+          console.log("hi");
+          // console.log(data);
           res.redirect("/chat");
         })
         // return res.redirect("/chat");
@@ -78,4 +81,41 @@ exports.postSignup = async (req,res,next)=>{
     console.log("Error while sigining up!!");
     console.log(err);
   })
+}
+
+exports.postLogout = async function (req,res,next){
+
+  mongoose.connection.db.collection("sessions")
+  .deleteOne({_id:req.session._id})
+  .then((ack)=>{
+    return console.log(ack);
+  })
+  .then(async ()=>{
+    return await req.session.destroy(()=>{
+      console.log("destroyed cookie!!");
+    })
+
+  })
+  .then(()=>{
+    res.redirect("/login");
+  })
+  .catch(err=>{
+    console.log("mongo session not destroyed!!");
+    console.log(err);
+  })
+
+
+  // User.sessions.deleteOne({_id:req.session.user._id})
+  // .then((ack)=>{
+  //   return console.log(ack);
+  // })
+  // .then(async ()=>{
+  //   await req.session.destroy();
+  //   res.redirect("/login");
+  // })
+  // .catch((err)=>{
+  //   console.log("Error while logging out!!");
+  //   console.log(err);
+  // })
+  
 }

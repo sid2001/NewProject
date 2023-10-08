@@ -7,19 +7,29 @@
     <link rel="stylesheet" href="css/chat.css">
 </head>
 <body onload = "connectChat()">
+    <header class="header">
+        <form action="/logout" method="POST">
+            <div  id="log_out"><button type="submit">Log-Out</button></div>
+
+        </form>
+            
+                
+            <div id="home"><a href="https://127.0.0.1:3000/login">Home</a></div>
+            
+            
+    </header>
+    <span id="menu-button" onclick="toggleMenu()">&#9776;</span>
     <div class="menu-closed">
 
         <!-- Side Menu -->
         <div id="side-menu" class="side-menu">
         </div>
-    
         <!-- Content Area -->
-        <div id="content">
-            <span id="menu-button" onclick="toggleMenu()">&#9776;</span>
-        </div>
-    
+        <!-- <div id="content"> -->
+        <!-- </div> -->
         
     </div>
+    
     <div class="chat-container">
         <div class="video-container">
             <!-- User's video -->
@@ -43,13 +53,14 @@
                 <div id="actionButton">
                     <button id="video-call">Video Call</button>
                     <button id="send-button">Send</button>
+                    <!-- <button id="getDevices" onclick="getDevices(true,true)">Camera</button> -->
                 </div>
                 
             </div>
             
         </div>
     </div>
-</div>
+
 </body>
 <script>
 setTimeout(5000);
@@ -87,15 +98,18 @@ users.forEach((user)=>{
 })
 function toggleMenu() {
   var sideMenu = document.getElementById("side-menu");
-  var content = document.getElementById("content");
+//   var content = document.getElementById("content");
+  var menuButton = document.getElementById("menu-button");
   var body = document.body
   if (sideMenu.style.width === "250px") {
       sideMenu.style.width = "0";
-      content.style.marginLeft = "0";
+    //   content.style.marginLeft = "0";
+      menuButton.style.marginLeft = "0";
       body.classList.remove("menu-open");
   } else {
       sideMenu.style.width = "250px";
-      content.style.marginLeft = "250px";
+    //   content.style.marginLeft = "250px";
+      menuButton.style.marginLeft = "250px";
       body.classList.add("menu-open");
   }
 }
@@ -108,8 +122,9 @@ const configuration = {
         'urls': 'stun:stun.l.google.com:19302'
     }]
 }
-
-let pc = new RTCPeerConnection();
+var pc;
+// async function getDevices(aud,vid){
+     pc = new RTCPeerConnection(configuration);
 
     navigator.mediaDevices.getUserMedia({
         audio:true,
@@ -125,6 +140,21 @@ let pc = new RTCPeerConnection();
         console.log(err);
     })
 
+    pc.onicecandidate = event => {
+    if(event.candidate){
+        ws.send(JSON.stringify({
+            type:"candidate",
+            from:username,
+            to:selectedContact,
+            candidate:event.candidate
+            }))
+        }
+    }
+
+    pc.onaddstream = function (evt) {
+      remote_video.srcObject = evt.stream;
+    }
+// }
 
 async function videoCall() {
 
@@ -145,20 +175,7 @@ async function videoCall() {
     
 }
 
-pc.onicecandidate = event => {
-    if(event.candidate){
-        ws.send(JSON.stringify({
-            type:"candidate",
-            from:username,
-            to:selectedContact,
-            candidate:event.candidate
-        }))
-    }
-}
 
-pc.onaddstream = function (evt) {
-      remote_video.srcObject = evt.stream;
-    }
 
 
 
@@ -167,7 +184,7 @@ var sendButton = document.getElementById("send-button");
 sendButton.addEventListener("click",sendMessage);
 var ws;
 async function connectChat(){
-  ws = new WebSocket(`wss://c2a7-182-66-218-126.ngrok-free.app/chat?username=${username}`);
+  ws = await new WebSocket(`wss://4f6f-182-66-218-126.ngrok-free.app/chat?username=${username}`);
   ws.onerror = (error)=>console.error;
   ws.onopen = open;
   ws.onmessage = gotMessage;
@@ -191,6 +208,7 @@ async function gotMessage(dat){
     currentMessage.appendChild(message);
   }
   else if(parsedData.type=="offer"){
+    // await getDevices(true,true);
     console.log("Offer received!!");
     // pc = new RTCPeerConnection();
     // pc.onaddstream = function (evt) {
@@ -199,7 +217,7 @@ async function gotMessage(dat){
     // await pc.setRemoteDescription(parsedData.offer).then(()=>{
     //     console.log("remote description set!!")
     // })
-    await pc.setRemoteDescription(new RTCSessionDescription(parsedData.offer)).then(()=>{
+    await pc.setRemoteDescription(await new RTCSessionDescription(parsedData.offer)).then(()=>{
         console.log("Remote desc set!!");
     });
     const answer = await pc.createAnswer();

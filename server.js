@@ -10,6 +10,7 @@ const User = require('./models/User.js');
 const chatServer = require('./chatServer.js');
 const homeRoutes = require("./routes/homeRoutes.js")
 const fs = require('fs');
+var mongooseInstance;
 app.set("view engine", "ejs");
 app.set("views","views");
 
@@ -48,8 +49,9 @@ app.use((req,res,next)=>{
 
 app.use(homeRoutes);
 
-mongoose.connect(process.env.MONGODB_URI).then(()=>{
-  console.log(`Connected to db`)
+mongoose.connect(process.env.MONGODB_URI).then((data)=>{
+  
+  console.log(`Connected to db`);
   const httpServer = https.createServer({key:fs.readFileSync("key.pem"),cert:fs.readFileSync("cert.pem")},app).listen({host:"127.0.0.1",port:3000});
   chatServer(httpServer);
   // console.log(app.locals.httpServer.);
