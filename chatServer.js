@@ -22,7 +22,7 @@ module.exports =  async(httpServer) =>{
     const [_path,params] = req?.url?.split("?");
     // const reqParam = queryString.parse(params);
     console.log("New ws connection!!");
-    console.log(req.session?.user);
+    console.log(req.IncomingMessage);
     console.log(params);
     const username = params?.split('=')[1];
     clients[username] = ws;

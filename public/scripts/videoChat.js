@@ -1,51 +1,57 @@
-var mediaDevices;
-var local_video = document.getElementById('local_video');
-var remote_video = document.getElementById('remote_video');
+let localStream = null;
+const configuration = {
+    'iceServers' :[{
+        'urls': 'stun:stun.l.google.com:19302'
+    }]
+}
 
-var pc;
+let pc = new RTCPeerConnection();
+
+    navigator.mediaDevices.getUserMedia({
+        audio:true,
+        video:true
+    }).then(stream =>{
+        local_video.srcObject = stream;
+        localStream = stream;
+
+        for (let track of localStream.getTracks()) {
+            pc.addTrack(track, localStream);
+        }
+    }).catch(err=>{ 
+        console.log(err);
+    })
+
 
 async function videoCall() {
-pc = new RTCPeerConnection();
 
-await navigator.mediaDevices.getUserMedia({audio:true,video:true}).then(async function gotStream(evt){
-  await pc.addStream(evt);
-  console.log("Got streams!!");
-  console.log(evt);
-
-  local_video.srcObject = evt;
-
-  pc.createOffer()
-  .then(async function(offer){
-    console.log("Offer created!!");
-    console.log(offer);
-    await pc.setLocalDescription(offer).then(()=>{
-      console.log("Local Description Set!!");
-    })
-    ws.send(JSON.stringify({
-      type:"offer",
-      from: username,
-      to: selectedContact,
-      offer:offer
+    if(selectedContact===""){
+        alert("Select a contact!!");
+        return;
+    }
+    await pc.createOffer().then(async (offer)=>{
+        await pc.setLocalDescription(offer);
+        await ws.send(JSON.stringify({
+        type:"offer",
+        from:username,
+        to:selectedContact,
+        offer:offer
     }))
-  })
-  .catch((err)=>{
-    console.log(err);
-  })
-})
-.catch(function logError(err){
-  console.log("ERROR connecting!!");
-  console.log(err);
-})
-
-
-
-pc.onicecandidate = function(evt) {
-  if(evt.candidate) {
-    //for later
-  }
+    })
+    
+    
 }
+
+pc.onicecandidate = event => {
+    if(event.candidate){
+        ws.send(JSON.stringify({
+            type:"candidate",
+            from:username,
+            to:selectedContact,
+            candidate:event.candidate
+        }))
+    }
+}
+
 pc.onaddstream = function (evt) {
-  console.log("on add stream!!");
-  remote_video.srcObject = evt;
-}
-}
+      remote_video.srcObject = evt.stream;
+    }
