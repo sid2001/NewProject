@@ -19,3 +19,8 @@ How to make a SFU
 
 OOOOOOO>Why TURN works: because it sits on the public IP
 
+>>>>>>Chain a server with in between. Server should able to maintain a record for which peer it should connect to 
+>>>>>>Take a stream from one peer clone the data and open new connection for rest of the peers and attach the stream
+>>>>>>or say feed the data to other streams
+
+>>>>>>clone streams look more into this

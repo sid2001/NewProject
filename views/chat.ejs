@@ -62,8 +62,8 @@
     </div>
 
 </body>
-<script>
-setTimeout(5000);
+<script src ="scripts/videoChat.js ">
+await setTimeout(5000);
 const users = <%- JSON.stringify(users) %>;
 const username = <%- JSON.stringify(username) %>;
 var vbtn = document.getElementById("video-call");
@@ -77,19 +77,9 @@ users.forEach((user)=>{
     if(user.username!==username){
   let contact = document.createElement('contact');
   contact.innerHTML = user.name;
-//   contact.setAttribute("style");
   contact.setAttribute("style","background:white")
   contact.addEventListener("click",()=>{
       selectedContact = user.username;
-    //   if(selectedContact!==""){
-    //   document.getElementById("selectedContact").style.background="white";
-    //   document.getElementById("selectedContact").id = "";
-    // }
-    //   if(selectedContact!="null"){
-        // ;
-    //   }
-    //   contact.setAttribute("id","selectedContact");
-    //   document.getElementById("selectedContact").style.background = "rgba(56, 77, 139, 0.684)";
       toggleMenu();
   })
   contact.setAttribute("username",user.username);
@@ -356,4 +346,5 @@ async function sendMessage(){
 // }
 
 </script>
+<script src ="scripts/webSocket.js"></script>
 </html>

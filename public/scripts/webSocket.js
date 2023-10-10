@@ -1,9 +1,10 @@
 var inputArea = document.getElementById("message-input");
 var sendButton = document.getElementById("send-button");
 sendButton.addEventListener("click",sendMessage);
+
 var ws;
 async function connectChat(){
-  ws = new WebSocket(`ws://localhost:3000/chat?username=${username}`);
+  ws = new WebSocket(`wss://127.0.0.1:3000/chat?username=${username}`);
   ws.onerror = (error)=>console.error;
   ws.onopen = open;
   ws.onmessage = gotMessage;
@@ -12,7 +13,7 @@ function open(){
   console.log("Connection Established!!");
 }
 async function gotMessage(dat){
-  console.log(dat.data);
+//   console.log(dat.data);
   const parsedData = JSON.parse(dat.data.toString("utf8"));
   //if sent data is a text message from the user then display the message.
   if(parsedData.type=='text'){
@@ -27,43 +28,45 @@ async function gotMessage(dat){
     currentMessage.appendChild(message);
   }
   else if(parsedData.type=="offer"){
-    pc = new RTCPeerConnection();
-    pc.setRemoteDescription(parsedData.offer);
-
-    pc.onaddstream = function (evt) {
-      remote_video.src = evt;
-    }
-
-    await navigator.mediaDevices.getUserMedia({audio:true,video:true})
-    .then(function gotStream(evt) {
-      pc.addStream(evt);
-      local_video.srcObject = evt;
-  
-      pc.createAnswer().then(async function (answer){
-        await pc.setLocalDescription(answer);
-  
-        ws.send(JSON.stringify({
+    console.log("Offer received!!");
+    await pc.setRemoteDescription(new RTCSessionDescription(parsedData.offer)).then(()=>{
+        console.log("Remote desc set!!");
+    });
+    const answer = await pc.createAnswer();
+    console.log("Answer created!!");
+    await pc.setLocalDescription(answer).then(()=>{
+        console.log("Local desc set!!");
+    });
+    ws.send(JSON.stringify({
           type:"answer",
           from:username,
           to:selectedContact,
           answer:answer
         }));
-      })
-    })
-    .catch(function logError(err) {
-      console.log("Error!!");
-      console.log(err);
-    })
+    
+
   }
   else if(parsedData.type=="answer"){
-    pc.setRemoteDescription(parsedData.answer).then(()=>{
-      console.log("Answer received!!");
-    });
+    console.log("Answer received!!");
+    const remoteDesc = new RTCSessionDescription(parsedData.answer);
+    await pc.setRemoteDescription(remoteDesc);
+  }
+  else if(parsedData.type=="candidate"){
+    try {
+        await pc.addIceCandidate(parsedData.candidate);
+    } catch (e) {
+        console.log(e);
+    }
   }
   
 }
 
+
 async function sendMessage(){
+    if(selectedContact===""){
+        alert("Select a contact!!");
+        return;
+    }
   const data = {
     type:"text",
     message: inputArea.value,
