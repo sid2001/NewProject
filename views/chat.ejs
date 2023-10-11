@@ -62,10 +62,11 @@
     </div>
 
 </body>
-<script src ="scripts/videoChat.js ">
-await setTimeout(5000);
-const users = <%- JSON.stringify(users) %>;
-const username = <%- JSON.stringify(username) %>;
+
+<script > 
+
+var users = <%- JSON.stringify(users) %>;   
+var username = <%- JSON.stringify(username) %>;
 var vbtn = document.getElementById("video-call");
 vbtn.addEventListener("click",videoCall);
 
@@ -86,7 +87,7 @@ users.forEach((user)=>{
   contacts.appendChild(contact);
 }
 })
-function toggleMenu() {
+var toggleMenu = function (){
   var sideMenu = document.getElementById("side-menu");
 //   var content = document.getElementById("content");
   var menuButton = document.getElementById("menu-button");
@@ -112,9 +113,8 @@ const configuration = {
         'urls': 'stun:stun.l.google.com:19302'
     }]
 }
-var pc;
-// async function getDevices(aud,vid){
-     pc = new RTCPeerConnection(configuration);
+
+let pc = new RTCPeerConnection(configuration);
 
     navigator.mediaDevices.getUserMedia({
         audio:true,
@@ -130,22 +130,7 @@ var pc;
         console.log(err);
     })
 
-    pc.onicecandidate = event => {
-    if(event.candidate){
-        ws.send(JSON.stringify({
-            type:"candidate",
-            from:username,
-            to:selectedContact,
-            candidate:event.candidate
-            }))
-        }
-    }
-
-    pc.onaddstream = function (evt) {
-      remote_video.srcObject = evt.stream;
-    }
-// }
-
+var off;
 async function videoCall() {
 
     if(selectedContact===""){
@@ -153,6 +138,7 @@ async function videoCall() {
         return;
     }
     await pc.createOffer().then(async (offer)=>{
+        off = offer;
         await pc.setLocalDescription(offer);
         await ws.send(JSON.stringify({
         type:"offer",
@@ -165,16 +151,35 @@ async function videoCall() {
     
 }
 
+pc.onicecandidate = event => {
+    console.log("sending ice!!");
+
+    if(event.candidate){
+        ws.send(JSON.stringify({
+            type:"ice",
+            from:username,
+            to:selectedContact,
+            ice:event.candidate
+        }))
+    }
+}
+
+pc.onaddstream = function (evt) {
+      remote_video.srcObject = evt.stream;
+      console.log(evt.stream);
+      console.log(evt.stream[0]);
+    }
 
 
 
 
-var inputArea = document.getElementById("message-input");
+    var inputArea = document.getElementById("message-input");
 var sendButton = document.getElementById("send-button");
 sendButton.addEventListener("click",sendMessage);
+
 var ws;
 async function connectChat(){
-  ws = await new WebSocket(`wss://4f6f-182-66-218-126.ngrok-free.app/chat?username=${username}`);
+  ws = new WebSocket(`wss://127.0.0.1:3030/chat?username=${username}`);
   ws.onerror = (error)=>console.error;
   ws.onopen = open;
   ws.onmessage = gotMessage;
@@ -184,7 +189,7 @@ function open(){
 }
 async function gotMessage(dat){
 //   console.log(dat.data);
-  const parsedData = JSON.parse(dat.data.toString("utf8"));
+  const parsedData = JSON.parse(JSON.stringify(dat.toString("utf8")));
   //if sent data is a text message from the user then display the message.
   if(parsedData.type=='text'){
     var currentMessage = document.getElementById("message");
@@ -198,16 +203,8 @@ async function gotMessage(dat){
     currentMessage.appendChild(message);
   }
   else if(parsedData.type=="offer"){
-    // await getDevices(true,true);
     console.log("Offer received!!");
-    // pc = new RTCPeerConnection();
-    // pc.onaddstream = function (evt) {
-    //   remote_video.srcObject = evt.stream;
-    // }
-    // await pc.setRemoteDescription(parsedData.offer).then(()=>{
-    //     console.log("remote description set!!")
-    // })
-    await pc.setRemoteDescription(await new RTCSessionDescription(parsedData.offer)).then(()=>{
+    await pc.setRemoteDescription(new RTCSessionDescription(parsedData.offer)).then(()=>{
         console.log("Remote desc set!!");
     });
     const answer = await pc.createAnswer();
@@ -223,36 +220,9 @@ async function gotMessage(dat){
         }));
     
 
-    // await navigator.mediaDevices.getUserMedia({audio:true,video:true})
-    // .then(async function gotStream(evt) {
-    //   console.log("Got media devices!!");
-    //   await pc.addStream(evt);
-    //   local_video.srcObject = evt;
-    
-    //   await pc.createAnswer().then(async function (answer){
-    //     console.log("Answer Created!!");
-    //     await pc.setLocalDescription(answer).then(()=>{
-    //         console.log("Local Description set!!");
-    //     })
-  
-    //     ws.send(JSON.stringify({
-    //       type:"answer",
-    //       from:username,
-    //       to:selectedContact,
-    //       answer:answer
-    //     }));
-    //   })
-    // })
-    // .catch(function logError(err) {
-    //   console.log("Error!!");
-    //   console.log(err);
-    // })
   }
   else if(parsedData.type=="answer"){
     console.log("Answer received!!");
-    // await pc.setRemoteDescription(parsedData.answer).then(()=>{
-    //   console.log("Remote description set!!");
-    // });
     const remoteDesc = new RTCSessionDescription(parsedData.answer);
     await pc.setRemoteDescription(remoteDesc);
   }
@@ -287,64 +257,6 @@ async function sendMessage(){
     console.log("Couldn't send message!!");
   }
 }
-
-
-
-
-// var local_video = document.getElementById('local_video');
-// var remote_video = document.getElementById('remote_video');
-
-// var pc;
-
-
-// async function videoCall() {
-// pc = new RTCPeerConnection();
-
-// await navigator.mediaDevices.getUserMedia({audio:true,video:true}).then(async function gotStream(evt){
-//   await pc.addStream(evt);
-//   setTimeout(1000);
-//   console.log("Got streams!!");
-// //   console.log(evt);
-
-//   local_video.srcObject = evt;
-
-//   await pc.createOffer()
-//   .then(async function(offer){
-//     console.log("Offer created!!");
-//     // console.log(offer);
-//     await pc.setLocalDescription(offer).then(()=>{
-//       console.log("Local Description Set!!");
-//     })
-//     ws.send(JSON.stringify({
-//       type:"offer",
-//       from: username,
-//       to: selectedContact,
-//       offer:offer
-//     }))
-//   })
-//   .catch((err)=>{
-//     console.log(err);
-//   })
-// })
-// .catch(function logError(err){
-//   console.log("ERROR connecting!!");
-//   console.log(err);
-// })
-
-
-
-// pc.onicecandidate = function(evt) {
-//   if(evt.candidate) {
-//     //for later
-//   }
-// }
-// pc.onaddstream = function (evt) {
-//   console.log(evt);
-//   console.log("on add stream!!");
-//   remote_video.srcObject = evt.stream;
-// }
-// }
-
 </script>
-<script src ="scripts/webSocket.js"></script>
+<!-- <script src ="scripts/webSocket.js"></script> -->
 </html>

@@ -45,9 +45,9 @@ async function handleTrackEvent(e,id,ws){
 wss.on("connection",async(ws,req)=>{
 
   wss.broadcast = function(data){
-    peers.clients.forEach((client)=>{
-      if(client.sock.readyState===WebSocket.OPEN){
-        client.sock.send(data);
+    wss.clients.forEach((client)=>{
+      if(client.readyState===WebSocket.OPEN){
+        client.send(data);
       }
     })
   }
@@ -68,9 +68,13 @@ wss.on("connection",async(ws,req)=>{
   
   ws.send(JSON.stringify({type:"welcome",id:peerId}))
   ws.on('message',async (message)=>{
-    const parsedMessage = JSON.parse(JSON.stringify(message));
-    const type = parsedMessage.type;
-
+    const parsedMessage = await JSON.parse(message.toString("utf8"));
+    // console.log(parsedMessage);
+    console.log(typeof parsedMessage)
+    const type = parsedMessage["type"];
+    console.log(parsedMessage);
+    console.log(type);
+    console.log("message received!!");
     if(type==="connect"){
       peers.set(parsedMessage.uid,{sock:ws});
       const pc = await createPeer();
@@ -92,7 +96,7 @@ wss.on("connection",async(ws,req)=>{
 
       ws.send(JSON.stringify(payload));
     }
-    else if(parsedMessage.type === 'getPeers'){
+    else if(type === 'getPeers'){
 
       let uid = parsedMessage.uid;
       const list = [];
@@ -114,14 +118,14 @@ wss.on("connection",async(ws,req)=>{
 
       ws.send(JSON.stringify(peersPayload));
     }
-    else if(parsedMessage.type==="ice"){
-
+    else if(type==="ice"){
+      console.log("Received ice candidate!!");
       const user = peers.get(parsedMessage.uid);
       if(user.peer)
         user.peer.addIceCandidate(new webrtc.RTCIceCandidate(parsedMessage.ice))
         .catch(e=> console.log(e));
     }
-    else if(parsedMessage.type==="consume"){
+    else if(type==="consume"){
       try{
       let {id,sdp,consumerId} = parsedMessage;
       const remoteUser = peers.get(id);
@@ -148,7 +152,7 @@ wss.on("connection",async(ws,req)=>{
       console.log(err);
     }
     }
-    else if(parsedMessage.type==='consumer_ice'){
+    else if(type==='consumer_ice'){
 
       if(consumers.has(parsedMessage.consumerId)) {
         consumers.get(parsedMessage.consumerId).addIceCandidate(new webrtc.RTCIceCandidate(parsedMessage.ice))
@@ -157,7 +161,10 @@ wss.on("connection",async(ws,req)=>{
         })
       }
     }
-    else wss.broadcast(message);
+    else {
+      wss.broadcast(message);
+      console.log("Broadcasting message!!!");
+    }
   });
   ws.on('error',()=>ws.terminate());
 });
