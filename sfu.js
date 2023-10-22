@@ -79,7 +79,8 @@ wss.on("connection",async(ws,req)=>{
       peers.set(parsedMessage.uid,{sock:ws});
       const pc = await createPeer();
       peers.get(parsedMessage.uid).peer = pc;
-      peers.get(parsedMessage.uid).username = username;
+      peers.get(parsedMessage.uid).username = parsedMessage.username;
+      
       pc.ontrack = (e)=>{
         handleTrackEvent(e,parsedMessage.uid,ws);
       }
@@ -91,7 +92,7 @@ wss.on("connection",async(ws,req)=>{
 
       const payload = {
         type:'answer',
-        sdp:pc.localDescription
+        sdp:answer
       }
 
       ws.send(JSON.stringify(payload));

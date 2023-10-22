@@ -53,24 +53,26 @@
                 <div id="actionButton">
                     <button id="video-call">Video Call</button>
                     <button id="send-button">Send</button>
-                    <!-- <button id="getDevices" onclick="getDevices(true,true)">Camera</button> -->
+                    <button id ="connect" onclick="connect()">Connect</button>
+                    <button id="getPeers" onclick="getPeers()">Get Peers</button>
+                    <button id="consume" onclick="consume()">Consume</button>
                 </div>
                 
             </div>
             
         </div>
     </div>
-
-</body>
+</div>
 
 <script > 
 
 var users = <%- JSON.stringify(users) %>;   
 var username = <%- JSON.stringify(username) %>;
 var vbtn = document.getElementById("video-call");
-vbtn.addEventListener("click",videoCall);
+// vbtn.addEventListener("click",videoCall());
 
-
+var consumers = new Map();
+var peers = new Map();
 
 var selectedContact="";
 var contacts = document.getElementById("side-menu");
@@ -113,8 +115,11 @@ const configuration = {
         'urls': 'stun:stun.l.google.com:19302'
     }]
 }
+var pc;
 
-let pc = new RTCPeerConnection(configuration);
+async function connect(){
+
+    pc = new RTCPeerConnection(configuration);
 
     navigator.mediaDevices.getUserMedia({
         audio:true,
@@ -126,49 +131,127 @@ let pc = new RTCPeerConnection(configuration);
         for (let track of localStream.getTracks()) {
             pc.addTrack(track, localStream);
         }
-    }).catch(err=>{ 
+        return true;
+    })
+    .then(async (d)=>{
+        await pc.createOffer().then(async(offer)=>{
+        var offer = offer;
+        await pc.setLocalDescription(offer);
+        pc.onicecandidate = event => {
+            console.log("sending ice!!");
+
+            if(event.candidate){
+                ws.send(JSON.stringify({
+                type:"ice",
+                from:username,
+                uid:pc._uid,
+                to:selectedContact,
+                ice:event.candidate
+                }))
+            }
+        }
+        const payload = {
+        type:"connect",
+        uid:pc._uid,
+        username:username,
+        sdp: offer
+        }
+        ws.send(JSON.stringify(payload));
+
+    }).catch((err)=>{
+        console.log("error while offer!!");
+    })
+    })
+    .catch(err=>{ 
         console.log(err);
     })
+    
+}
 
-var off;
-async function videoCall() {
-
-    if(selectedContact===""){
-        alert("Select a contact!!");
-        return;
+async function getPeers() {
+    const payload = {
+        type:"getPeers",
+        uid:pc._uid
     }
-    await pc.createOffer().then(async (offer)=>{
-        off = offer;
-        await pc.setLocalDescription(offer);
-        await ws.send(JSON.stringify({
-        type:"offer",
-        from:username,
-        to:selectedContact,
-        offer:offer
-    }))
+    ws.send(JSON.stringify(payload));
+}
+async function setPeers(p){
+    p.forEach((peer)=>{
+        if(peers.has(peer.id)===false)
+        peers.set(peer.id,peer.username);
     })
-    
-    
 }
 
-pc.onicecandidate = event => {
-    console.log("sending ice!!");
+async function consume(){
 
-    if(event.candidate){
-        ws.send(JSON.stringify({
-            type:"ice",
-            from:username,
-            to:selectedContact,
-            ice:event.candidate
-        }))
-    }
+    const id = "342sger";
+    let cpc = new RTCPeerConnection(configuration);
+    consumers.set(id,{cpc:cpc});
+    await cpc.createOffer().then(async (offer)=>{
+
+        await cpc.setLocalDescription(offer);
+        const payload = {
+            type:"consume",
+            id:peers.keys.next().value,
+            sdp:offer,
+            consumerId:id
+        }
+        cpc.onicecandidate = event => {
+            console.log("sending ice!!");
+
+            if(event.candidate){
+            ws.send(JSON.stringify({
+                type:"consumer_ice",
+                from:username,
+                consumerId:id,
+                to:selectedContact,
+                ice:event.candidate
+                }))
+            }
+        }
+
+        cpc.onaddstream = function (evt) {
+      
+            remote_video.srcObject = evt.stream;
+            console.log(evt.stream);
+            console.log(evt.stream[0]);
+        }
+        ws.send(JSON.stringify(payload));
+    })
 }
+// let pc = new RTCPeerConnection(configuration);
 
-pc.onaddstream = function (evt) {
-      remote_video.srcObject = evt.stream;
-      console.log(evt.stream);
-      console.log(evt.stream[0]);
-    }
+
+
+// var off;
+// async function videoCall() {
+
+//     if(selectedContact===""){
+//         alert("Select a contact!!");
+//         return;
+//     }
+//     await pc.createOffer().then(async (offer)=>{
+//         off = offer;
+//         await pc.setLocalDescription(offer);
+//         await ws.send(JSON.stringify({
+//         type:"offer",
+//         from:username,
+//         to:selectedContact,
+//         offer:offer
+//     }))
+//     })
+    
+    
+// }
+
+
+
+// pc.onaddstream = function (evt) {
+      
+//       remote_video.srcObject = evt.stream;
+//       console.log(evt.stream);
+//       console.log(evt.stream[0]);
+//     }
 
 
 
@@ -201,6 +284,24 @@ async function gotMessage(dat){
     message.innerHTML = parsedData.message; 
     currentMessage.appendChild(messageSender);
     currentMessage.appendChild(message);
+  }
+  else if(parsedData.type =="welcome"){
+
+    
+    console.log("Connected to the server!");
+    pc._uid = parsedData.id;
+  }
+  else if(parsedData.type ==="answer"){
+    await pc.setRemoteDescription(new RTCSessionDescription(parsedData.sdp));
+    console.log("Remote desc set!!");
+  }
+  else if(parsedData.type==="peers"){
+    setPeers(parsedData.peers);
+  }
+  else if(parsedData.type==="consume"){
+
+    await consumers.get(parsedData.id).setRemoteDescription(new RTCSessionDescription(parsedData.sdp));
+    consumers.get(parsedData.id).remoteUser = parsedData.username;
   }
   else if(parsedData.type=="offer"){
     console.log("Offer received!!");
@@ -258,5 +359,6 @@ async function sendMessage(){
   }
 }
 </script>
+</body>
 <!-- <script src ="scripts/webSocket.js"></script> -->
 </html>
